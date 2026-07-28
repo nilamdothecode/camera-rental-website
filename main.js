@@ -18,10 +18,6 @@ function slideCard(e, id, dir) {
   dots[cardSliders[id]].classList.add('active');
 }
 
-// ── AUTO YEAR FOOTER ──
-document.getElementById('footerCopy').textContent =
-  '© ' + new Date().getFullYear() + ' LensKu · Klang / Shah Alam / Subang';
-
 // ── NAV SCROLL SHADOW ──
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
@@ -86,24 +82,10 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTxPE3FSPf3jE
 // Data kamera — update nama, harga, emoji ikut unit kau
 const cameras = {
   'canon-r50':  {
-    emoji: '📷', name: 'Canon R50', price: 'RM 50 / hari', booked: [],
-    includes: [
-      'Body Canon EOS R50',
-      'Battery LP-E17 (1x) + Charger',
-      'Memory Card 64GB',
-      'Camera Strap',
-      'Body Cap'
-    ]
+    emoji: '📷', name: 'Canon R50', price: 'RM 50 / hari', booked: []
   },
   'sony-a6400': {
-    emoji: '📸', name: 'Sony Alpha A6400', price: 'RM ?? / hari', booked: [],
-    includes: [
-      'Body Sony Alpha A6400',
-      'Battery NP-FW50 (1x) + Charger',
-      'Memory Card 64GB',
-      'Camera Strap',
-      'Body Cap'
-    ]
+    emoji: '📸', name: 'Sony Alpha A6400', price: 'Coming Soon', booked: []
   }
 };
 
@@ -114,39 +96,7 @@ let sheetLoaded = false;
 
 // Fetch & parse Google Sheet CSV
 // Format Sheet: Column A = camera_id, Column B = tarikh (YYYY-MM-DD)
-async function loadSheet() {
-  if (SHEET_URL === 'PASTE_YOUR_SHEET_URL_HERE') {
-    // Demo mode — data contoh
-    cameras['canon-r50'].booked  = [3, 7, 8, 14, 15, 20];
-    cameras['sony-a6400'].booked = [1, 2, 10, 11];
-    sheetLoaded = true;
-    return;
-  }
-  try {
-    const res = await fetch(SHEET_URL);
-    const csv = await res.text();
-    Object.keys(cameras).forEach(k => cameras[k].booked = []);
-    const rows = csv.trim().split('\n').slice(1); // skip header
-    rows.forEach(row => {
-      const cols = row.replace(/"/g, '').split(',');
-      const camId = cols[0]?.trim().toLowerCase();
-      const dateStr = cols[1]?.trim();
-      if (!camId || !dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return;
-      const key = Object.keys(cameras).find(k => k === camId);
-      if (key) {
-        cameras[key].booked.push({ y: d.getFullYear(), m: d.getMonth(), d: d.getDate() });
-      }
-    });
-    sheetLoaded = true;
-  } catch (err) {
-    console.warn('Sheet fetch gagal, guna demo data.', err);
-    cameras['canon-r50'].booked  = [3, 7, 8, 14, 15, 20];
-    cameras['sony-a6400'].booked = [1, 2, 10, 11];
-    sheetLoaded = true;
-  }
-}
+// (Fungsi loadSheet sebenar ada di bawah — satu sahaja, elak pertindihan.)
 
 function isBooked(camId, y, m, d) {
   const list = cameras[camId]?.booked || [];
@@ -165,15 +115,6 @@ function openModal(id) {
   document.getElementById('modalPrice').textContent = cam.price;
   document.getElementById('modalWaBtn').href =
     `https://wa.me/60113676335?text=Hi%20Ata%20Hub!%20Nak%20tanya%20availability%20untuk%20${encodeURIComponent(cam.name)}`;
-
-  // Render "Dalam Kotak" list
-  const includesList = document.getElementById('modalIncludes');
-  includesList.innerHTML = cam.includes.map(item => `
-    <div class="modal-include-item">
-      <span class="modal-include-dot"></span>
-      ${item}
-    </div>
-  `).join('');
 
   modalDate = new Date();
   renderCal();
@@ -234,7 +175,7 @@ function renderCal() {
       el.addEventListener('click', () => {
         const cam = cameras[activeCam];
         window.open(
-          `https://wa.me/601XXXXXXXX?text=Hi%20LensKu!%20Nak%20sewa%20${encodeURIComponent(cam.name)}%20pada%20${d}%20${encodeURIComponent(months[m])}%20${y}.`,
+          `https://wa.me/60113676335?text=Hi%20Ata%20Hub!%20Nak%20sewa%20${encodeURIComponent(cam.name)}%20pada%20${d}%20${encodeURIComponent(months[m])}%20${y}.`,
           '_blank'
         );
       });
@@ -316,7 +257,6 @@ async function loadSheet() {
   if (SHEET_URL === 'PASTE_YOUR_SHEET_URL_HERE') {
     // Demo mode — data contoh
     cameras['canon-r50'].booked  = [3, 7, 8, 14, 15, 20];
-    cameras['dji-osmo'].booked   = [5, 6, 12];
     sheetLoaded = true;
     return;
   }
